@@ -21,14 +21,20 @@ public class Coordinator extends CoordinatorGrpc.CoordinatorImplBase {
   private final Task[] reduceTasks;
   private final int nMap;
   private final int nReduce;
+  private final int requestedPort;
   private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
   private final CountDownLatch doneLatch = new CountDownLatch(1);
   private Server server;
   private Phase currentPhase = Phase.MAP;
 
   public Coordinator(List<String> files, int nReduce) {
+    this(files, nReduce, 50051);
+  }
+
+  public Coordinator(List<String> files, int nReduce, int port) {
     this.nMap = files.size();
     this.nReduce = nReduce;
+    this.requestedPort = port;
     this.mapTasks = new Task[nMap];
     for (int i = 0; i < nMap; i++) {
       mapTasks[i] = new Task(i, files.get(i));
@@ -99,19 +105,20 @@ public class Coordinator extends CoordinatorGrpc.CoordinatorImplBase {
     responseObserver.onCompleted();
   }
 
-  public void startServer() throws Exception {
-    int port = 50051;
-    this.server = ServerBuilder.forPort(port)
+  public int startServer() throws Exception {
+    this.server = ServerBuilder.forPort(requestedPort)
         .addService(this)
         .build()
         .start();
-    System.out.println("Coordinator started on port 50051");
+    System.out.println("Coordinator started on port " + server.getPort());
+    return server.getPort();
   }
 
   public void stopServer() {
     if (server != null) {
       server.shutdown();
     }
+    scheduler.shutdownNow();
   }
 
   private boolean allTasksCompleted(Task[] tasks) {

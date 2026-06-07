@@ -32,11 +32,15 @@ public class Worker {
   private final CoordinatorGrpc.CoordinatorBlockingStub stub;
 
   public Worker(MapFunc mapFunc, ReduceFunc reduceFunc) {
+    this(mapFunc, reduceFunc, 50051);
+  }
+
+  public Worker(MapFunc mapFunc, ReduceFunc reduceFunc, int coordinatorPort) {
     this.mapFunc = mapFunc;
     this.reduceFunc = reduceFunc;
     this.workerId = UUID.randomUUID().toString();
     this.gson = new Gson();
-    ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+    ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", coordinatorPort)
         .usePlaintext()
         .build();
     this.stub = CoordinatorGrpc.newBlockingStub(channel);
