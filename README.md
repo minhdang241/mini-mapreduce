@@ -4,8 +4,10 @@ A simplified MapReduce implementation in Java
 
 ## Objective
 
-Build a distributed MapReduce system consisting of a **Coordinator** and multiple **Workers** that communicate via RPC.
-The Coordinator hands out Map and Reduce tasks to Workers, handles fault tolerance (reassigning tasks after 10-second
+Build a distributed MapReduce system consisting of a **Coordinator** and multiple **Workers** that
+communicate via RPC.
+The Coordinator hands out Map and Reduce tasks to Workers, handles fault tolerance (reassigning
+tasks after 10-second
 timeouts), and the system produces the same output as a sequential single-process run.
 
 ## Architecture
@@ -51,10 +53,10 @@ timeouts), and the system produces the same output as a sequential single-proces
 - [x] `WordCount` application (map and reduce)
 - [x] Sequential MapReduce runner (`MrSequential`)
 - [x] Unit tests for sequential runner
-- [ ] Coordinator (task state management, RPC server)
-- [ ] Worker (RPC client, task execution loop)
-- [ ] RPC message definitions
-- [ ] Intermediate file I/O (JSON serialization of `KeyValue` pairs)
-- [ ] Fault tolerance (10s timeout, task reassignment)
-- [ ] Coordinator `Done()` method (exit condition)
-- [ ] Integration tests with multiple workers
+- [x] Coordinator (task state management, RPC server)
+- [x] Worker (RPC client, task execution loop)
+- [x] RPC message definitions
+- [x] Intermediate file I/O (JSON serialization of `KeyValue` pairs)
+- [x] Fault tolerance (10s timeout, task reassignment)
+- [x] Coordinator `Done()` method (exit condition)
+- [x] Integration tests with multiple workers
