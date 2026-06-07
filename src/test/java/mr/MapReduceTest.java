@@ -93,7 +93,54 @@ public class MapReduceTest {
     // 6. Assert that our distributed system got the exact same result!
     assertEquals(expectedCounts, actualCounts,
         "Distributed output does not match sequential output!");
-    System.out.println("✅ Basic WordCount Test Passed!");
+    System.out.println("Basic WordCount Test Passed!");
+  }
+
+  @Test
+  void testWorkerCrashRecovery() throws Exception {
+    Map<String, Integer> expectedCounts = runSequentialWordCount(inputFiles);
+
+    coordinator = new Coordinator(inputFiles, nReduce, 0);
+    int coordinatorPort = coordinator.startServer();
+
+    class CrashyApp implements MapFunc, ReduceFunc {
+
+      private final WordCount wc = new WordCount();
+      private int crashCounter = 0;
+
+      @Override
+      public List<KeyValue> map(String filename, String contents) {
+        crashCounter++;
+        if (crashCounter == 1) {
+          System.out.println("💥 MALICIOUS WORKER CRASHING!");
+          throw new RuntimeException("Simulated power failure!");
+        }
+        return wc.map(filename, contents);
+      }
+
+      @Override
+      public String reduce(String key, List<String> values) {
+        return wc.reduce(key, values);
+      }
+    }
+
+    Thread badWorker = new Thread(
+        () -> new Worker(new CrashyApp(), new CrashyApp(), coordinatorPort).run());
+    Thread goodWorker = new Thread(
+        () -> new Worker(new WordCount(), new WordCount(), coordinatorPort).run());
+    badWorker.start();
+    goodWorker.start();
+
+    coordinator.awaitDone();
+    joinQuietly(badWorker);
+    joinQuietly(goodWorker);
+    coordinator.stopServer();
+
+    Map<String, Integer> actualCounts = readDistributedOutput();
+
+    assertEquals(expectedCounts, actualCounts,
+        "System failed to recover from worker crash!");
+    System.out.println("Crash Recovery Test Passed!");
   }
 
   // --- Helper Methods ---

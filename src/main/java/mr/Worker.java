@@ -52,8 +52,8 @@ public class Worker {
 
   public void run() {
     System.out.println("Worker " + workerId + " started.");
-    try {
-      while (true) {
+    while (true) {
+      try {
         TaskRequest req = TaskRequest.newBuilder().setWorkerId(workerId).build();
         TaskReply reply = stub.getTask(req);
         switch (reply.getTaskType()) {
@@ -78,10 +78,9 @@ public class Worker {
             System.out.println("Worker " + workerId + " shutting down.");
             return;
         }
+      } catch (Exception e) {
+        System.err.println("Worker " + workerId + " encountered an error: " + e.getMessage());
       }
-    } catch (Exception e) {
-      System.err.println("Worker " + workerId + " encountered an error: " + e.getMessage());
-      e.printStackTrace();
     }
   }
 

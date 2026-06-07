@@ -160,7 +160,7 @@ public class Coordinator extends CoordinatorGrpc.CoordinatorImplBase {
     }, 1, 1, TimeUnit.SECONDS);
   }
 
-  private void checkTimeouts() {
+  private synchronized void checkTimeouts() {
     Task[] tasks = (currentPhase == Phase.MAP) ? mapTasks : reduceTasks;
     long now = System.currentTimeMillis();
     long threshold = 10000; // 10 seconds
