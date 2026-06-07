@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.google.protobuf' version '0.9.4' // Adds Protobuf support
 }
 
 java {
@@ -13,9 +14,30 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.11.0'
+
+    // gRPC Dependencies
+    implementation 'io.grpc:grpc-netty-shaded:1.62.2'
+    implementation 'io.grpc:grpc-protobuf:1.62.2'
+    implementation 'io.grpc:grpc-stub:1.62.2'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.1"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.62.2'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins { grpc {} }
+    }
 }
 
 test {

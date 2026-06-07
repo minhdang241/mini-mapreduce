@@ -1,0 +1,37 @@
+syntax = 'proto3';
+
+option java_multiple_files = true;
+option java_package = "com.mr.proto";
+
+package mr;
+
+enum TaskType {
+  MAP = 0;
+  REDUCE = 1;
+  WAIT = 2;
+  SHUTDOWN = 3;
+}
+
+message TaskRequest {
+  string workerId = 1;
+}
+
+message TaskReply {
+  TaskType taskType = 1;
+  int32 taskId = 2;
+  string filename = 3;
+  int32 nReduce = 4;
+  int32 nMap = 5;
+}
+
+message DoneRequest {
+  TaskType taskType = 1;
+  int32 taskId = 2;
+}
+
+message DoneReply {}
+
+service Coordinator {
+  rpc GetTask(TaskRequest) returns (TaskReply);
+  rpc ReportDone(DoneRequest) returns (DoneReply);
+}
